@@ -18,7 +18,6 @@ app.use(session({
 // Keycloak
 const keycloak = new Keycloak({ store: memoryStore });
 app.use(keycloak.middleware({
-  logout: '/logout',
   admin: '/'
 }));
 
@@ -34,6 +33,13 @@ app.get('/', (req, res) => {
     <p>${authLink}</p>
     <p><a href="/protected">Go to protected resource</a></p>
   `);
+});
+
+app.get('/logout', (req, res) => {
+  req.session.destroy();
+  const redirectUri = 'http://localhost:3000/';
+  const logoutUrl = keycloak.logoutUrl(redirectUri);
+  res.redirect(logoutUrl);
 });
 
 app.get('/protected', keycloak.protect(), (req, res) => {
